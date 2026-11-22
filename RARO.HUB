@@ -1,0 +1,740 @@
+--[[
+RARO.HUB | HACKER EDITION
+Complete LocalScript
+]]
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- COLORS
+local BLUE = Color3.fromRGB(0, 145, 255)
+local DARK = Color3.fromRGB(5, 9, 18)
+local PANEL = Color3.fromRGB(13, 25, 42)
+local WHITE = Color3.fromRGB(230, 245, 255)
+local GREEN = Color3.fromRGB(0, 220, 140)
+
+-- DANCES
+local DANCES = {
+{name = "Dance 1", id = "130018893"},
+{name = "Dance 2", id = "132546839"},
+{name = "Dance 3", id = "132546884"},
+{name = "Moving Dance", id = "429703734"},
+{name = "Spin Dance", id = "429730430"},
+{name = "Moon Dance", id = "45834924"},
+}
+
+-- CLEAN OLD GUI
+for _, name in ipairs({"RaroHub", "RaroIntro"}) do
+local old = playerGui:FindFirstChild(name)
+if old then old:Destroy() end
+end
+
+-- INTRO SCREEN
+local intro = Instance.new("ScreenGui")
+intro.Name = "RaroIntro"
+intro.IgnoreGuiInset = true
+intro.DisplayOrder = 999
+intro.Parent = playerGui
+
+local introBG = Instance.new("Frame")
+introBG.Size = UDim2.fromScale(1, 1)
+introBG.BackgroundColor3 = Color3.fromRGB(2, 5, 12)
+introBG.BorderSizePixel = 0
+introBG.Parent = intro
+
+local introTitle = Instance.new("TextLabel")
+introTitle.Size = UDim2.new(1, 0, 0, 90)
+introTitle.Position = UDim2.new(0, 0, .35, 0)
+introTitle.BackgroundTransparency = 1
+introTitle.Text = "RARO.HUB"
+introTitle.TextColor3 = BLUE
+introTitle.TextSize = 48
+introTitle.Font = Enum.Font.GothamBlack
+introTitle.TextTransparency = 1
+introTitle.Parent = introBG
+
+local introSub = Instance.new("TextLabel")
+introSub.Size = UDim2.new(1, 0, 0, 35)
+introSub.Position = UDim2.new(0, 0, .49, 0)
+introSub.BackgroundTransparency = 1
+introSub.Text = "INITIALIZING SYSTEM..."
+introSub.TextColor3 = WHITE
+introSub.TextSize = 14
+introSub.Font = Enum.Font.Code
+introSub.TextTransparency = 1
+introSub.Parent = introBG
+
+local loadingBarBG = Instance.new("Frame")
+loadingBarBG.Size = UDim2.new(.35, 0, 0, 4)
+loadingBarBG.Position = UDim2.new(.5, 0, .58, 0)
+loadingBarBG.AnchorPoint = Vector2.new(.5, 0)
+loadingBarBG.BackgroundColor3 = PANEL
+loadingBarBG.BorderSizePixel = 0
+loadingBarBG.Parent = introBG
+
+local loadingBar = Instance.new("Frame")
+loadingBar.Size = UDim2.new(0, 0, 1, 0)
+loadingBar.BackgroundColor3 = BLUE
+loadingBar.BorderSizePixel = 0
+loadingBar.Parent = loadingBarBG
+
+TweenService:Create(introTitle, TweenInfo.new(.8), {
+TextTransparency = 0
+}):Play()
+
+task.wait(.8)
+
+TweenService:Create(introSub, TweenInfo.new(.5), {
+TextTransparency = 0
+}):Play()
+
+TweenService:Create(loadingBar, TweenInfo.new(2), {
+Size = UDim2.fromScale(1, 1)
+}):Play()
+
+task.wait(2.1)
+
+introSub.Text = "SYSTEM ONLINE // WELCOME"
+
+task.wait(.7)
+
+TweenService:Create(introBG, TweenInfo.new(.6), {
+BackgroundTransparency = 1
+}):Play()
+
+TweenService:Create(introTitle, TweenInfo.new(.5), {
+TextTransparency = 1
+}):Play()
+
+TweenService:Create(introSub, TweenInfo.new(.5), {
+TextTransparency = 1
+}):Play()
+
+task.wait(.7)
+intro:Destroy()
+
+-- MAIN GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "RaroHub"
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 10
+gui.Parent = playerGui
+
+-- UI HELPERS
+local function corner(obj, radius)
+local c = Instance.new("UICorner")
+c.CornerRadius = UDim.new(0, radius or 8)
+c.Parent = obj
+end
+
+local function addStroke(obj, color, thickness)
+local s = Instance.new("UIStroke")
+s.Color = color or BLUE
+s.Thickness = thickness or 1
+s.Parent = obj
+return s
+end
+
+local function makeButton(parent, text, position, size)
+local b = Instance.new("TextButton")
+b.Size = size
+b.Position = position
+b.BackgroundColor3 = Color3.fromRGB(15, 45, 75)
+b.Text = text
+b.TextColor3 = WHITE
+b.TextSize = 13
+b.Font = Enum.Font.GothamBold
+b.AutoButtonColor = false
+b.Parent = parent
+corner(b, 7)
+
+b.MouseEnter:Connect(function()
+TweenService:Create(b, TweenInfo.new(.15), {
+BackgroundColor3 = Color3.fromRGB(20, 100, 165)
+}):Play()
+end)
+
+b.MouseLeave:Connect(function()
+TweenService:Create(b, TweenInfo.new(.15), {
+BackgroundColor3 = Color3.fromRGB(15, 45, 75)
+}):Play()
+end)
+
+return b
+
+end
+
+-- MAIN PANEL
+local main = Instance.new("Frame")
+main.Size = UDim2.fromOffset(270, 300)
+main.Position = UDim2.new(.5, -135, .5, -150)
+main.BackgroundColor3 = DARK
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+main.Parent = gui
+
+corner(main, 12)
+local mainStroke = addStroke(main, BLUE, 2)
+
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+ColorSequenceKeypoint.new(0, Color3.fromRGB(12, 35, 65)),
+ColorSequenceKeypoint.new(1, DARK)
+})
+gradient.Rotation = 45
+gradient.Parent = main
+
+-- HEADER
+local header = Instance.new("Frame")
+header.Size = UDim2.new(1, 0, 0, 42)
+header.BackgroundColor3 = Color3.fromRGB(10, 35, 65)
+header.BorderSizePixel = 0
+header.Parent = main
+corner(header, 12)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -85, 1, 0)
+title.Position = UDim2.fromOffset(12, 0)
+title.BackgroundTransparency = 1
+title.Text = "◆ RARO.HUB"
+title.TextColor3 = BLUE
+title.TextSize = 17
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = header
+
+local minimize = makeButton(
+header, "—",
+UDim2.new(1, -65, 0, 7),
+UDim2.fromOffset(25, 27)
+)
+
+local close = makeButton(
+header, "×",
+UDim2.new(1, -33, 0, 7),
+UDim2.fromOffset(25, 27)
+)
+
+-- CONTENT
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1, -16, 1, -50)
+content.Position = UDim2.fromOffset(8, 46)
+content.BackgroundTransparency = 1
+content.Parent = main
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, 0, 0, 22)
+status.BackgroundTransparency = 1
+status.Text = "SYSTEM ONLINE // RARO USER"
+status.TextColor3 = GREEN
+status.Font = Enum.Font.Code
+status.TextSize = 11
+status.Parent = content
+
+local stats = Instance.new("TextLabel")
+stats.Size = UDim2.new(1, 0, 0, 28)
+stats.Position = UDim2.fromOffset(0, 25)
+stats.BackgroundColor3 = PANEL
+stats.TextColor3 = WHITE
+stats.Font = Enum.Font.Code
+stats.TextSize = 12
+stats.Parent = content
+corner(stats, 6)
+
+local danceOpen = makeButton(
+content, ">> DANCE R6",
+UDim2.fromOffset(0, 65),
+UDim2.new(1, 0, 0, 40)
+)
+
+local sodaButton = makeButton(
+content, ">> SHANGOOL MODE",
+UDim2.fromOffset(0, 115),
+UDim2.new(1, 0, 0, 40)
+)
+
+local hideButton = makeButton(
+content, ">> HIDE INTERFACE",
+UDim2.fromOffset(0, 165),
+UDim2.new(1, 0, 0, 40)
+)
+
+local footer = Instance.new("TextLabel")
+footer.Size = UDim2.new(1, 0, 0, 20)
+footer.Position = UDim2.fromOffset(0, 218)
+footer.BackgroundTransparency = 1
+footer.Text = "RARO.HUB // HACKER EDITION"
+footer.TextColor3 = BLUE
+footer.Font = Enum.Font.Code
+footer.TextSize = 11
+footer.Parent = content
+
+-- MINIMIZE / RESTORE
+local minimized = false
+
+minimize.MouseButton1Click:Connect(function()
+minimized = not minimized
+content.Visible = not minimized
+main.Size = minimized
+and UDim2.fromOffset(270, 42)
+or UDim2.fromOffset(270, 300)
+minimize.Text = minimized and "+" or "—"
+end)
+
+-- HIDE / SHOW
+local restore = makeButton(
+gui, "RARO",
+UDim2.new(0, 15, .5, 0),
+UDim2.fromOffset(65, 38)
+)
+restore.Visible = false
+
+hideButton.MouseButton1Click:Connect(function()
+main.Visible = false
+restore.Visible = true
+end)
+
+restore.MouseButton1Click:Connect(function()
+main.Visible = true
+restore.Visible = false
+end)
+
+close.MouseButton1Click:Connect(function()
+gui:Destroy()
+end)
+
+-- FPS COUNTER
+local frames = 0
+local lastUpdate = os.clock()
+
+local statsConnection = RunService.RenderStepped:Connect(function()
+frames += 1
+
+if os.clock() - lastUpdate >= 1 then
+local fps = frames
+frames = 0
+lastUpdate = os.clock()
+
+if gui.Parent then    
+    stats.Text = "FPS: " .. fps ..    
+        "  |  TIME: " .. os.date("%H:%M:%S")    
+end
+
+end
+
+end)
+
+-- DANCE PANEL
+local dancePanel = Instance.new("Frame")
+dancePanel.Size = UDim2.fromOffset(245, 340)
+dancePanel.Position = UDim2.new(.5, 140, .5, -170)
+dancePanel.BackgroundColor3 = DARK
+dancePanel.BorderSizePixel = 0
+dancePanel.Active = true
+dancePanel.Draggable = true
+dancePanel.Visible = false
+dancePanel.Parent = gui
+
+corner(dancePanel, 10)
+addStroke(dancePanel, BLUE, 2)
+
+local danceTitle = Instance.new("TextLabel")
+danceTitle.Size = UDim2.new(1, -45, 0, 35)
+danceTitle.Position = UDim2.fromOffset(10, 0)
+danceTitle.BackgroundTransparency = 1
+danceTitle.Text = "R6 // DANCE MENU"
+danceTitle.TextColor3 = BLUE
+danceTitle.Font = Enum.Font.GothamBold
+danceTitle.TextSize = 14
+danceTitle.Parent = dancePanel
+
+local danceClose = makeButton(
+dancePanel, "×",
+UDim2.new(1, -35, 0, 4),
+UDim2.fromOffset(27, 27)
+)
+
+local search = Instance.new("TextBox")
+search.Size = UDim2.new(1, -16, 0, 30)
+search.Position = UDim2.fromOffset(8, 40)
+search.BackgroundColor3 = PANEL
+search.TextColor3 = WHITE
+search.PlaceholderText = "Search dances..."
+search.PlaceholderColor3 = BLUE
+search.Text = ""
+search.Font = Enum.Font.Code
+search.TextSize = 12
+search.ClearTextOnFocus = false
+search.Parent = dancePanel
+corner(search, 6)
+
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(1, -16, 1, -125)
+scroll.Position = UDim2.fromOffset(8, 78)
+scroll.BackgroundTransparency = 1
+scroll.BorderSizePixel = 0
+scroll.ScrollBarThickness = 4
+scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+scroll.CanvasSize = UDim2.new()
+scroll.Parent = dancePanel
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 5)
+layout.Parent = scroll
+
+local currentTrack = nil
+local currentAnimation = nil
+local currentIndex = nil
+local danceButtons = {}
+
+local function stopDance()
+if currentTrack then
+currentTrack:Stop()
+currentTrack:Destroy()
+currentTrack = nil
+end
+
+if currentAnimation then
+currentAnimation:Destroy()
+currentAnimation = nil
+end
+
+currentIndex = nil
+
+for _, b in ipairs(danceButtons) do
+if b.Parent then
+b.BackgroundColor3 = Color3.fromRGB(15, 45, 75)
+end
+end
+
+end
+
+local function playDance(index, button)
+if currentIndex == index then
+stopDance()
+return
+end
+
+stopDance()
+
+local character = player.Character
+local humanoid = character and
+character:FindFirstChildOfClass("Humanoid")
+
+if not humanoid then
+status.Text = "ERROR // CHARACTER NOT FOUND"
+return
+end
+
+if humanoid.RigType ~= Enum.HumanoidRigType.R6 then
+status.Text = "ERROR // R6 CHARACTER REQUIRED"
+return
+end
+
+local animator = humanoid:FindFirstChildOfClass("Animator")
+if not animator then
+status.Text = "ERROR // ANIMATOR NOT FOUND"
+return
+end
+
+local animation = Instance.new("Animation")
+animation.AnimationId = "rbxassetid://" .. DANCES[index].id
+
+local success, track = pcall(function()
+return animator:LoadAnimation(animation)
+end)
+
+if not success then
+animation:Destroy()
+status.Text = "ERROR // ANIMATION FAILED"
+return
+end
+
+currentAnimation = animation
+currentTrack = track
+currentTrack.Looped = true
+currentTrack:Play()
+currentIndex = index
+
+button.BackgroundColor3 = GREEN
+status.Text = "SYSTEM // DANCE ACTIVE"
+
+end
+
+local function buildDanceButtons()
+for _, b in ipairs(danceButtons) do
+b:Destroy()
+end
+table.clear(danceButtons)
+
+for i, dance in ipairs(DANCES) do
+if string.find(
+string.lower(dance.name),
+string.lower(search.Text),
+1,
+true
+) then
+local b = makeButton(
+scroll,
+dance.name,
+UDim2.new(),
+UDim2.new(1, -5, 0, 34)
+)
+
+b.LayoutOrder = i    
+    table.insert(danceButtons, b)    
+
+    if currentIndex == i then    
+        b.BackgroundColor3 = GREEN    
+    end    
+
+    b.MouseButton1Click:Connect(function()    
+        playDance(i, b)    
+    end)    
+end
+
+end
+
+end
+
+buildDanceButtons()
+
+search:GetPropertyChangedSignal("Text"):Connect(buildDanceButtons)
+
+local stopButton = makeButton(
+dancePanel, "STOP DANCE",
+UDim2.new(0, 8, 1, -40),
+UDim2.new(1, -16, 0, 32)
+)
+
+stopButton.BackgroundColor3 = Color3.fromRGB(130, 30, 45)
+
+stopButton.MouseButton1Click:Connect(function()
+stopDance()
+status.Text = "SYSTEM // DANCE STOPPED"
+end)
+
+danceOpen.MouseButton1Click:Connect(function()
+dancePanel.Visible = not dancePanel.Visible
+end)
+
+danceClose.MouseButton1Click:Connect(function()
+dancePanel.Visible = false
+end)
+
+-- SHANGOOL SODA
+local soda = nil
+local effectActive = false
+local effectConnection = nil
+
+local function stopSodaEffect()
+if effectConnection then
+effectConnection:Disconnect()
+effectConnection = nil
+end
+
+local camera = workspace.CurrentCamera
+if camera then
+camera.FieldOfView = 70
+end
+
+local character = player.Character
+local humanoid = character and
+character:FindFirstChildOfClass("Humanoid")
+
+if humanoid then
+humanoid.CameraOffset = Vector3.zero
+end
+
+effectActive = false
+
+end
+
+local function startSodaEffect()
+if effectActive then return end
+
+local camera = workspace.CurrentCamera
+if not camera then return end
+
+effectActive = true
+
+local originalFOV = camera.FieldOfView
+local startTime = os.clock()
+local duration = 2.5
+
+effectConnection = RunService.RenderStepped:Connect(function()
+local elapsed = os.clock() - startTime
+
+if elapsed >= duration then    
+    stopSodaEffect()    
+    return    
+end    
+
+camera = workspace.CurrentCamera    
+if not camera then    
+    stopSodaEffect()    
+    return    
+end    
+
+local wave = math.sin(elapsed * 4)    
+
+camera.FieldOfView = originalFOV + wave * 2    
+
+local character = player.Character    
+local humanoid = character and    
+    character:FindFirstChildOfClass("Humanoid")    
+
+if humanoid then    
+    humanoid.CameraOffset = Vector3.new(    
+        math.sin(elapsed * 3) * .07,    
+        math.cos(elapsed * 4) * .05,    
+        0    
+    )    
+end
+
+end)
+
+end
+
+local function createSoda()
+local tool = Instance.new("Tool")
+tool.Name = "Shangool Soda"
+tool.RequiresHandle = true
+tool.CanBeDropped = false
+
+local handle = Instance.new("Part")
+handle.Name = "Handle"
+handle.Size = Vector3.new(.6, 1.5, .6)
+handle.Color = Color3.fromRGB(220, 20, 35)
+handle.Material = Enum.Material.SmoothPlastic
+handle.CanCollide = false
+handle.Parent = tool
+
+local cap = Instance.new("Part")
+cap.Name = "Cap"
+cap.Size = Vector3.new(.62, .12, .62)
+cap.Color = Color3.fromRGB(180, 180, 190)
+cap.Material = Enum.Material.Metal
+cap.CanCollide = false
+cap.Massless = true
+cap.CFrame = handle.CFrame * CFrame.new(0, .8, 0)
+cap.Parent = tool
+
+local weld = Instance.new("WeldConstraint")
+weld.Part0 = handle
+weld.Part1 = cap
+weld.Parent = handle
+
+tool.Activated:Connect(function()
+startSodaEffect()
+end)
+
+return tool
+
+end
+
+sodaButton.MouseButton1Click:Connect(function()
+local backpack = player:FindFirstChild("Backpack")
+if not backpack then return end
+
+if soda and soda.Parent then
+local character = player.Character
+
+if soda.Parent == character then    
+    soda.Parent = backpack    
+    sodaButton.Text = ">> SHANGOOL SODA"    
+else    
+    local humanoid = character and    
+        character:FindFirstChildOfClass("Humanoid")    
+
+    if humanoid then    
+        humanoid:EquipTool(soda)    
+        sodaButton.Text = ">> SODA EQUIPPED"    
+    end    
+end    
+
+return
+
+end
+
+soda = createSoda()
+soda.Parent = backpack
+
+local character = player.Character
+local humanoid = character and
+character:FindFirstChildOfClass("Humanoid")
+
+if humanoid then
+humanoid:EquipTool(soda)
+end
+
+sodaButton.Text = ">> SODA EQUIPPED"
+status.Text = "SYSTEM // SODA READY"
+
+end)
+
+-- HACKER SCAN
+local scan = Instance.new("Frame")
+scan.Size = UDim2.new(1, 0, 0, 2)
+scan.BackgroundColor3 = BLUE
+scan.BackgroundTransparency = .25
+scan.BorderSizePixel = 0
+scan.ZIndex = 5
+scan.Parent = main
+
+task.spawn(function()
+while gui.Parent do
+scan.Position = UDim2.new(0, 0, 0, 42)
+
+local tween = TweenService:Create(
+scan,
+TweenInfo.new(2.5, Enum.EasingStyle.Linear),
+{Position = UDim2.new(0, 0, 1, -3)}
+)
+
+tween:Play()    
+tween.Completed:Wait()    
+task.wait(.2)
+
+end
+
+end)
+
+-- NEON BORDER
+task.spawn(function()
+while gui.Parent do
+local hue = .55 + math.sin(os.clock()) * .035
+mainStroke.Color = Color3.fromHSV(hue, .85, 1)
+task.wait(.04)
+end
+end)
+
+-- RESPAWN SUPPORT
+player.CharacterAdded:Connect(function()
+stopDance()
+stopSodaEffect()
+
+soda = nil
+sodaButton.Text = ">> SHANGOOL MODE"
+status.Text = "SYSTEM ONLINE // RARO USER"
+
+end)
+
+-- CLEANUP
+gui.Destroying:Connect(function()
+stopDance()
+stopSodaEffect()
+
+if statsConnection then
+statsConnection:Disconnect()
+end
+
+end)
+
+print("RARO.HUB HACKER EDITION LOADED!")
